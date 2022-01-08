@@ -25,12 +25,11 @@ s3_client = session.client(service_name="s3", endpoint_url=endpoint)
 def lambda_handler(event, context):
 
     bucket = "test-bucket"
-    key = "test-data/sample.json"
-    recieve = "scatter/job.pkl"
+    recieve = "gather/job.pkl"
     send = "summary.xlsx"
     resp = s3_client.get_object(Bucket=bucket, Key=recieve)
     body = resp["Body"].read()
-    df = pd.DataFrame(pickle.loads(body))
+    df = pickle.loads(body)
     # df = pickle.loads(body)
     s3_resource = session.resource(service_name="s3", endpoint_url=endpoint)
     with tempfile.TemporaryFile() as fp:
