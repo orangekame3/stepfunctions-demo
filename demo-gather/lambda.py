@@ -1,12 +1,7 @@
 import boto3
-import pandas
-import joblib
 from boto3.session import Session
 import os
-from datetime import datetime
-import json
 import pandas as pd
-import joblib
 import tempfile
 import pickle
 
@@ -15,32 +10,33 @@ session = Session(
 )
 if os.getenv("LOCALSTACK_HOSTNAME") is None:
     endpoint = "http://localhost:4566"
+    s3_client = boto3.client("s3", "ap-northeast-1")
 else:
     endpoint = f"http://{os.environ['LOCALSTACK_HOSTNAME']}:4566"
-
-
-s3_client = session.client(service_name="s3", endpoint_url=endpoint)
+    s3_client = session.client(service_name="s3", endpoint_url=endpoint)
+    s3_resource = session.resource(service_name="s3", endpoint_url=endpoint)
 
 
 def lambda_handler(event, context):
-    bucket = "test-bucket"
-    # recieve = "gather/job.pkl"
+    bucket = "aggregatebucket"
     frames = []
-    task_results = json.loads(event)
+    task_results = event
     send = "summary.xlsx"
     for pkl in task_results["task_results"]:
         resp = s3_client.get_object(Bucket=bucket, Key=pkl)
         body = resp["Body"].read()
         df = pickle.loads(body)
         frames.append(df)
-    # df = pickle.loads(body)
     result = pd.concat(frames, axis=0)
-    s3_resource = session.resource(service_name="s3", endpoint_url=endpoint)
     with tempfile.TemporaryFile() as fp:
         writer = pd.ExcelWriter(fp, engine="xlsxwriter")
         result.to_excel(writer, sheet_name="Sheet1", index=False)
         worksheet = writer.sheets["Sheet1"]
         writer.save()
         fp.seek(0)
-        s3_resource.Bucket(bucket).put_object(Key=send, Body=fp.read())
+        s3_client.put_object(
+            Body=fp.read(),
+            Bucket=bucket,
+            Key=send,
+        )
     return event
