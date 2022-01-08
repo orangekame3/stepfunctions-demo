@@ -1,0 +1,1 @@
+aws --endpoint-url=http://localhost:4566 --region us-east-1 --profile localstack lambda delete-function --function-name=scatter

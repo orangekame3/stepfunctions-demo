@@ -1,0 +1,10 @@
+{
+  "StartAt": "aggregate",
+  "States": {
+    "Shinobu": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:::function:scatter",
+      "End": true
+    }
+  }
+}
