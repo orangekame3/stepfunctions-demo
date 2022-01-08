@@ -1,0 +1,34 @@
+{
+    "StartAt": "ScatterLambda",
+    "States": {
+        "ScatterLambda": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-east-1:123456789012:function:scatter",
+            "Next": "ProcessAllSegments"
+        },
+        "ProcessAllSegments": {
+            "Type": "Map",
+            "InputPath": "$.task_definitions",
+            "ItemsPath": "$",
+            "MaxConcurrency": 100,
+            "Iterator": {
+                "StartAt": "TaskLambda",
+                "States": {
+                    "TaskLambda": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:lambda:us-east-1:123456789012:function:segment",
+                        "End": true
+                    }
+                }
+            },
+            "ResultPath": "$.task_results",
+            "Next": "GatherLambda"
+        },
+        "GatherLambda": {
+            "Type": "Task",
+            "InputPath": "$",
+            "Resource": "arn:aws:lambda:us-east-1:123456789012:function:gather",
+            "End": true
+        }
+    }
+}

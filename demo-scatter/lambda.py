@@ -26,7 +26,7 @@ def lambda_handler(event, context):
 
     bucket = "test-bucket"
     recieve = "test-data/sample.json"
-    send = "scatter/job.pkl"
+    send = "scatter/"
     resp = s3_client.get_object(Bucket=bucket, Key=recieve)
     body = resp["Body"].read().decode("utf-8")
     sample = json.loads(body)
@@ -35,8 +35,15 @@ def lambda_handler(event, context):
     # df = pd.DataFrame(sample)
     df = pd.read_json(sample)
     s3_resource = session.resource(service_name="s3", endpoint_url=endpoint)
-    with tempfile.TemporaryFile() as fp:
-        pickle.dump(df, fp)
-        fp.seek(0)
-        s3_resource.Bucket(bucket).put_object(Key=send, Body=fp.read())
-    return "done"
+    k = 100
+    dfs = [df.loc[i : i + k - 1, :] for i in range(0, len(df), k)]
+    task = {}
+    task["task_definitions"] = []
+    for i, df_i in enumerate(dfs):
+        with tempfile.TemporaryFile() as fp:
+            pickle.dump(df_i, fp)
+            fp.seek(0)
+            fsend = send + str(i).zfill(3) + "_job.pkl"
+            s3_resource.Bucket(bucket).put_object(Key=fsend, Body=fp.read())
+            task["task_definitions"].append(fsend)
+    return json.dumps(task)
