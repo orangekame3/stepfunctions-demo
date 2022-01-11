@@ -1,0 +1,16 @@
+{
+    "executionArn": "arn:aws:states:us-east-1:123456789012:execution:Aggregate:6d9e7de3-2d0b-427c-8397-e764d2d18b00",
+    "stateMachineArn": "arn:aws:states:us-east-1:123456789012:stateMachine:Aggregate",
+    "name": "6d9e7de3-2d0b-427c-8397-e764d2d18b00",
+    "status": "SUCCEEDED",
+    "startDate": "2022-01-09T14:08:49.128000+09:00",
+    "stopDate": "2022-01-09T14:08:50.287000+09:00",
+    "input": "{}",
+    "inputDetails": {
+        "included": true
+    },
+    "output": "{\"task_definitions\":[\"scatter/000_job.pkl\",\"scatter/001_job.pkl\",\"scatter/002_job.pkl\",\"scatter/003_job.pkl\",\"scatter/004_job.pkl\",\"scatter/005_job.pkl\",\"scatter/006_job.pkl\",\"scatter/007_job.pkl\",\"scatter/008_job.pkl\",\"scatter/009_job.pkl\"],\"task_results\":[\"gather/000_job.pkl\",\"gather/001_job.pkl\",\"gather/002_job.pkl\",\"gather/003_job.pkl\",\"gather/004_job.pkl\",\"gather/005_job.pkl\",\"gather/006_job.pkl\",\"gather/007_job.pkl\",\"gather/008_job.pkl\",\"gather/009_job.pkl\"]}\n",
+    "outputDetails": {
+        "included": true
+    }
+}

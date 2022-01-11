@@ -1,20 +1,21 @@
-import boto3
-from boto3.session import Session
 import os
-import pandas as pd
-import tempfile
 import pickle
+import tempfile
 
-session = Session(
-    aws_access_key_id="dummy", aws_secret_access_key="dummy", region_name="us-east-1"
-)
+import boto3
+import pandas as pd
+
 if os.getenv("LOCALSTACK_HOSTNAME") is None:
     endpoint = "http://localhost:4566"
     s3_client = boto3.client("s3", "ap-northeast-1")
 else:
     endpoint = f"http://{os.environ['LOCALSTACK_HOSTNAME']}:4566"
-    s3_client = session.client(service_name="s3", endpoint_url=endpoint)
-    s3_resource = session.resource(service_name="s3", endpoint_url=endpoint)
+    s3_client = boto3.client(
+        service_name="s3",
+        endpoint_url=endpoint,
+        aws_access_key_id="dummy",
+        aws_secret_access_key="dummy",
+    )
 
 
 def lambda_handler(event, context):
