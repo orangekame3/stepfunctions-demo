@@ -6,7 +6,7 @@ services:
     image: localstack/localstack
     environment:
       - DATA_DIR=/tmp/localstack/data
-      - SERVICES=${SERVICES- }
+      - SERVICES=lambda,s3
       - LAMBDA_EXECUTOR=docker-reuse
     ports:
       - "4566:4566"

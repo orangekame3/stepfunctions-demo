@@ -26,7 +26,7 @@ logger.setLevel(logging.INFO)
 def lambda_handler(event, context):
 
     bucket = "aggregatebucket"
-    logger.info(f"event: {event}")
+
     recieve = event
     send = recieve.replace("scatter", "gather")
     resp = s3_client.get_object(Bucket=bucket, Key=recieve)
@@ -45,4 +45,5 @@ def lambda_handler(event, context):
             Bucket=bucket,
             Key=send,
         )
+    logger.info("done")
     return send
