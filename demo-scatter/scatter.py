@@ -7,7 +7,7 @@ import pandas as pd
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-bucket = "aggregatebucket"
+mybucket = "aggregatebucket"
 recieve = "data/sample.json"
 send = "scatter/job_"
 segment_task_key = "segment_definitions"
@@ -21,9 +21,9 @@ class ScatterHandler(object):
         self.s3 = s3
         self.segments = segments
 
-    def main(self) -> dict:
+    def main(self, bucket=mybucket, key=recieve) -> dict:
         try:
-            data = self.get_s3_data(bucket, recieve)
+            data = self.get_s3_data(bucket, key)
             df = self.make_df(data)
             dfs = [
                 df.loc[i : i + division_number - 1, :]

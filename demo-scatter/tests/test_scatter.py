@@ -128,3 +128,17 @@ def test_make_segment_df(scatter_handle, bucket, data, want):
         for i in range(0, len(df), division_number)
     ]
     assert scatter_handle.make_segment_df(scatter_handle.segments, bucket, dfs) == want
+
+
+@pytest.mark.parametrize(
+    "bucket,key,want",
+    [
+        (
+            "aggregatebucket",
+            "data/sample.json",
+            {"segment_definitions": ["scatter/job_000.pkl", "scatter/job_001.pkl"]},
+        ),
+    ],
+)
+def test_main(scatter_handle, bucket, key, want):
+    assert scatter_handle.main(bucket, key) == want
