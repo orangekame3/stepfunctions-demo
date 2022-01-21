@@ -1,4 +1,4 @@
-.PHONY: zip deploy-local invoke-local log
+.PHONY: zip deploy-local invoke-local log delete-local
 PROJECT_DIR=$(shell pwd)
 SITE_PACKAGES_DIR=$(shell pipenv --venv)/lib/python3.9/site-packages
 zip:
@@ -8,11 +8,12 @@ zip:
 	cd $(PROJECT_DIR) && zip -g ./bin/lambda.zip lambda.py gather.py
 	find ./bin/lambda.zip    
 
-deploy-local:
+delete-local:
 	aws --endpoint-url=http://localhost:4566 \
     --region us-east-1 --profile localstack lambda delete-function \
     --function-name=gather
 	
+deploy-local:
 	aws lambda create-function \
     --function-name=gather \
     --runtime=python3.9 \

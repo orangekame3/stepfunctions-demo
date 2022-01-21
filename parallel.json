@@ -8,20 +8,20 @@
         },
         "ProcessAllSegments": {
             "Type": "Map",
-            "InputPath": "$.task_definitions",
+            "InputPath": "$.segment_definitions",
             "ItemsPath": "$",
             "MaxConcurrency": 100,
             "Iterator": {
-                "StartAt": "TaskLambda",
+                "StartAt": "SegmentLambda",
                 "States": {
-                    "TaskLambda": {
+                    "SegmentLambda": {
                         "Type": "Task",
                         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:segment",
                         "End": true
                     }
                 }
             },
-            "ResultPath": "$.task_results",
+            "ResultPath": "$.segment_results",
             "Next": "GatherLambda"
         },
         "GatherLambda": {

@@ -1,4 +1,4 @@
-.PHONY: zip deploy-local invoke-local log
+.PHONY: zip deploy-local invoke-local log delete-local
 PROJECT_DIR=$(shell pwd)
 SITE_PACKAGES_DIR=$(shell pipenv --venv)/lib/python3.9/site-packages
 zip:
@@ -8,11 +8,12 @@ zip:
 	cd $(PROJECT_DIR) && zip -g ./bin/lambda.zip lambda.py segment.py
 	find ./bin/lambda.zip    
 
-deploy:
+delete-local:
 	aws --endpoint-url=http://localhost:4566 \
     --region us-east-1 --profile localstack lambda delete-function \
     --function-name=segment
 	
+deploy-local:
 	aws lambda create-function \
     --function-name=segment \
     --runtime=python3.9 \
@@ -21,7 +22,7 @@ deploy:
     --zip-file fileb://./bin/lambda.zip \
     --endpoint-url=http://localhost:4566
 
-invoke:
+invoke-local:
 	aws lambda --endpoint-url=http://localhost:4566 invoke \
 	--function-name segment \
 	--profile localstack  result.log
