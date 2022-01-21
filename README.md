@@ -1,0 +1,3 @@
+# StepFunctions Demo
+ローカルスタックでStepFunctionsを実行するデモスクリプトです。
+動的並列処理をStepFunctionsで実装しています。

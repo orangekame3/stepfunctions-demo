@@ -10,11 +10,11 @@ echo "Library Location: $SITE_PACKAGES_DIR"
 # to zip site-packages
 cd $SITE_PACKAGES_DIR
 rm -rf __pycache__ # your option 容量節約のため．
-zip -r $PROJECT_DIR/lambda.zip *
+zip -r $PROJECT_DIR/cmd/lambda.zip *
 
 # add lambda-function script(.py)
 cd $PROJECT_DIR
-zip -g lambda.zip lambda.py # zip に Python スクリプトを追加
+zip -g ./cmd/lambda.zip lambda.py gather.py # zip に Python スクリプトを追加
 
 # display zip file
 ls | grep *.zip
