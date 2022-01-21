@@ -8,5 +8,5 @@ aws lambda create-function \
     --runtime=python3.9 \
     --role=DummyRole \
     --handler=lambda.lambda_handler \
-    --zip-file fileb://lambda.zip \
+    --zip-file fileb://./cmd/lambda.zip \
     --endpoint-url=http://localhost:4566
