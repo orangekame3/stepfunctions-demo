@@ -2,6 +2,47 @@
 ローカルスタックでStepFunctionsを実行するデモスクリプトです。
 動的並列処理をStepFunctionsで実装しています。
 
+## Usage
+### LocalStackの起動
+
+```bash
+docker-compose up
+```
+
+### Lambdaのzip化
+```bash
+make zip
+```
+
+### Lambdaの初回デプロイ
+```bash
+make create
+```
+
+### Lambdaの更新
+```bash
+make update
+```
+
+### Lambdaの削除
+```bash
+make delete
+```
+
+### Stepfunctionsの実行
+```bash
+make stepfunctions
+```
+### S3にアップロードしたエクセルファイルのダウンロード
+```bash
+make download
+```
+
+### テスト
+```bash
+make test
+```
+
 ## ディレクトリ構造
 
 ```bash
