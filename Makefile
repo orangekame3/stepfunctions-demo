@@ -34,7 +34,20 @@ download:
 	cp s3://aggregatebucket/ ./result --exclude "*" \
 	--include "*.xlsx" --recursive
 
+bucket:
+	aws --endpoint-url=http://localhost:4566 \
+		--profile localstack s3api create-bucket \
+		--bucket aggregatebucket
+
+	aws s3 --endpoint-url=http://localhost:4566 \
+		cp utils/data/sample.json s3://aggregatebucket/data/ \
+	 	--profile=localstack
+
 stepfunctions:
+	aws s3 --endpoint-url=http://localhost:4566 \
+		cp utils/data/sample.json s3://aggregatebucket/data/ \
+	 	--profile=localstack
+
 	aws stepfunctions create-state-machine \
 		--name Aggregate \
 		--definition file://parallel.json \

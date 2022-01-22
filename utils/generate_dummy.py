@@ -4,7 +4,6 @@ import subprocess
 from random import randint
 from mimesis import Person
 from mimesis.locales import Locale
-import mimesis
 
 person = Person(Locale.JA)
 
@@ -49,7 +48,7 @@ def main(k):
     )
     subprocess.run(
         [
-            "aws s3 --endpoint-url=http://localhost:4566 cp sample.json s3://aggregatebucket/data/ --profile=localstack",
+            "aws s3 --endpoint-url=http://localhost:4566 cp data/sample.json s3://aggregatebucket/data/ --profile=localstack",
         ],
         shell=True,
     )
