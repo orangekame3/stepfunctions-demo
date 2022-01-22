@@ -1,4 +1,3 @@
-from __future__ import division
 import pytest
 import boto3
 from scatter import ScatterHandler
@@ -15,20 +14,33 @@ def scatter_handle():
     )
     segments = {}
     segments["segment_definitions"] = []
-    s3.put_object(
-        Body="testdata/test_001.json",
-        Bucket="aggregate",
-        Key="data/test_001.json",
+    aggregate_bucket = "aggregatebucket"
+    s3.create_bucket(
+        Bucket=aggregate_bucket,
     )
-    return ScatterHandler(event={}, context={}, s3=s3, segments=segments)
+    return ScatterHandler(
+        event={},
+        context={},
+        s3=s3,
+        segments=segments,
+        aggregate_bucket=aggregate_bucket,
+        recieve="",
+        division_number=2,
+        date_dir="",
+    )
+
+
+def s3_upload(s3, input, bucket, s3_path):
+    with open(input, "rb") as data:
+        s3.upload_fileobj(data, bucket, s3_path)
 
 
 @pytest.mark.parametrize(
-    "bucket,key,want",
+    "input,recieve,want",
     [
         (
-            "aggregatebucket",
-            "data/sample.json",
+            "tests/testdata/test_001.json",
+            "data/2021/11/01/test_001.json",
             [
                 {
                     "会員番号": "000",
@@ -87,15 +99,16 @@ def scatter_handle():
         ),
     ],
 )
-def test_get_s3_data(scatter_handle, bucket, key, want):
-    assert scatter_handle.get_s3_data(bucket, key) == want
+def test_get_s3_data(scatter_handle, input, recieve, want):
+    s3_upload(scatter_handle.s3, input, scatter_handle.aggregate_bucket, recieve)
+    scatter_handle.recieve = recieve
+    assert scatter_handle.get_s3_data() == want
 
 
 @pytest.mark.parametrize(
-    "bucket,data,want",
+    "json_dict,date_dir,want",
     [
         (
-            "aggregatebucket",
             [
                 {
                     "会員番号": "000",
@@ -151,29 +164,45 @@ def test_get_s3_data(scatter_handle, bucket, key, want):
                     ],
                 },
             ],
-            {"segment_definitions": ["scatter/job_000.pkl", "scatter/job_001.pkl"]},
+            "2021/11/01",
+            {
+                "segment_definitions": [
+                    "scatter/2021/11/01/job_000.pkl",
+                    "scatter/2021/11/01/job_001.pkl",
+                ]
+            },
         ),
     ],
 )
-def test_make_segment_df(scatter_handle, bucket, data, want):
-    division_number = 1
-    df = scatter_handle.make_df(data)
+def test_make_segment_df(scatter_handle, json_dict, date_dir, want):
+    scatter_handle.division_number = 2
+    scatter_handle.date_dir = date_dir
+    df = scatter_handle.make_df(json_dict)
     dfs = [
-        df.loc[i : i + division_number - 1, :]
-        for i in range(0, len(df), division_number)
+        df.loc[i : i + scatter_handle.division_number - 1, :]
+        for i in range(0, len(df), scatter_handle.division_number)
     ]
-    assert scatter_handle.make_segment_df(scatter_handle.segments, bucket, dfs) == want
+    assert scatter_handle.make_segment_df(dfs) == want
 
 
 @pytest.mark.parametrize(
-    "bucket,key,want",
+    "input,recieve,date_dir,want",
     [
         (
-            "aggregatebucket",
-            "data/sample.json",
-            {"segment_definitions": ["scatter/job_000.pkl", "scatter/job_001.pkl"]},
+            "tests/testdata/test_001.json",
+            "data/2021/11/01/test_001.json",
+            "2021/11/01",
+            {
+                "segment_definitions": [
+                    "scatter/2021/11/01/job_000.pkl",
+                    "scatter/2021/11/01/job_001.pkl",
+                ]
+            },
         ),
     ],
 )
-def test_main(scatter_handle, bucket, key, want):
-    assert scatter_handle.main(bucket, key) == want
+def test_main(scatter_handle, input, recieve, date_dir, want):
+    s3_upload(scatter_handle.s3, input, scatter_handle.aggregate_bucket, recieve)
+    scatter_handle.recieve = recieve
+    scatter_handle.date_dir = date_dir
+    assert scatter_handle.main() == want

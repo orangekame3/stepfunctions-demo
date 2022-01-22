@@ -19,14 +19,25 @@ else:
 segments = {}
 segments["segment_definitions"] = []
 now = datetime.datetime.now()
-recieve_date = "data/" + now.strftime("%Y/%m/%d")
-bucket = "aggregatebucket"
-recieve = s3.list_objects_v2(Bucket=bucket, Prefix=recieve_date)["Contents"][0]["Key"]
+date_dir = now.strftime("%Y/%m/%d")
+data_path = "data/" + date_dir
+aggregate_bucket = "aggregatebucket"
+recieve = s3.list_objects_v2(Bucket=aggregate_bucket, Prefix=data_path)["Contents"][0][
+    "Key"
+]
 division_number = 10
+segment_task_key = "segment_definitions"
 
 
 def lambda_handler(event, context) -> dict:
     handler = ScatterHandler(
-        event, context, s3, segments, bucket, recieve, division_number
+        event,
+        context,
+        s3,
+        segments,
+        aggregate_bucket,
+        recieve,
+        division_number,
+        date_dir,
     )
     return handler.main()
