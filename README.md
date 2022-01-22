@@ -3,7 +3,7 @@ LocalStackでStepFunctionsを実行するデモスクリプトです。\
 動的並列処理をStepFunctionsで実装しています。
 
 ## システム構成図
-![システム構成図](./システム構成図.png)
+![システム構成図](/img/システム構成図.png)
 
 ## Usage
 ### LocalStackの起動
