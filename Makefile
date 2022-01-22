@@ -1,15 +1,25 @@
-.PHONY: zip deploy-local invoke-local log download stepfunction
+.PHONY: zip delete create update invoke log download stepfunction
 zip:
 	cd demo-scatter && make -f Makefile zip --no-print-directory
 	cd demo-segment && make -f Makefile zip --no-print-directory
 	cd demo-gather && make -f Makefile zip --no-print-directory
 
-deploy-local:
-	cd demo-scatter && make -f Makefile deploy-local --no-print-directory
-	cd demo-segment && make -f Makefile deploy-local --no-print-directory
-	cd demo-gather && make -f Makefile deploy-local --no-print-directory
+delete:
+	cd demo-scatter && make -f Makefile delete --no-print-directory
+	cd demo-segment && make -f Makefile delete --no-print-directory
+	cd demo-gather && make -f Makefile delete --no-print-directory
 
-invoke-local:
+create:
+	cd demo-scatter && make -f Makefile create --no-print-directory
+	cd demo-segment && make -f Makefile create --no-print-directory
+	cd demo-gather && make -f Makefile create --no-print-directory
+
+update:
+	cd demo-scatter && make -f Makefile update --no-print-directory
+	cd demo-segment && make -f Makefile update --no-print-directory
+	cd demo-gather && make -f Makefile update --no-print-directory
+
+invoke:
 	cd demo-scatter && make -f Makefile invoke-local --no-print-directory
 	cd demo-segment && make -f Makefile invoke-local --no-print-directory
 	cd demo-gather && make -f Makefile invoke-local --no-print-directory
@@ -24,7 +34,7 @@ download:
 	cp s3://aggregatebucket/ ./result --exclude "*" \
 	--include "*.xlsx" --recursive
 
-stepfunction:
+stepfunctions:
 	aws stepfunctions create-state-machine \
 		--name Aggregate \
 		--definition file://parallel.json \

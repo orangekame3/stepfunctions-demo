@@ -25,8 +25,8 @@ class SegmentHandler(object):
             else:
                 recieve = self.event
             send = recieve.replace("scatter", "gather")
-            data = self.get_s3_data(bucket, recieve)
-            df = self.make_df(data)
+            df = self.get_s3_data(bucket, recieve)
+            # df = self.make_df(data)
             df = self.normalize(df)
             return self.send_segment_df(df, bucket, send)
 
