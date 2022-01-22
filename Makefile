@@ -50,7 +50,7 @@ stepfunctions:
 
 	aws stepfunctions create-state-machine \
 		--name Aggregate \
-		--definition file://parallel.json \
+		--definition file://state-machine/parallel.json \
 		--role-arn "arn:aws:iam::000000000000:role/DummyRole" \
 		--endpoint http://localhost:4566
 
