@@ -7,37 +7,37 @@ import pandas as pd
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-mybucket = "aggregatebucket"
-recieve = "data/sample.json"
 send = "scatter/job_"
 segment_task_key = "segment_definitions"
-division_number = 1
 
 
 class ScatterHandler(object):
-    def __init__(self, event, context, s3, segments):
+    def __init__(self, event, context, s3, segments, bucket, recieve, division_number):
         self.event = event
         self.context = context
         self.s3 = s3
         self.segments = segments
+        self.bucket = bucket
+        self.recieve = recieve
+        self.division_number = division_number
 
-    def main(self, bucket=mybucket, key=recieve) -> dict:
+    def main(self) -> dict:
         try:
-            data = self.get_s3_data(bucket, key)
+            data = self.get_s3_data()
             df = self.make_df(data)
             dfs = [
-                df.loc[i : i + division_number - 1, :]
-                for i in range(0, len(df), division_number)
+                df.loc[i : i + self.division_number - 1, :]
+                for i in range(0, len(df), self.division_number)
             ]
-            segments = self.make_segment_df(self.segments, bucket, dfs)
+            segments = self.make_segment_df(self.segments, self.bucket, dfs)
             return segments
 
         except Exception as e:
             logger.exception(e)
             raise e
 
-    def get_s3_data(self, bucket, key) -> str:
-        resp = self.s3.get_object(Bucket=bucket, Key=key)
+    def get_s3_data(self) -> str:
+        resp = self.s3.get_object(Bucket=self.bucket, Key=self.recieve)
         body = resp["Body"].read().decode("utf-8")
         json_dict = json.loads(body)
         return json_dict

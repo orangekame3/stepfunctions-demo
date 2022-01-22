@@ -10,7 +10,7 @@
             "Type": "Map",
             "InputPath": "$.segment_definitions",
             "ItemsPath": "$",
-            "MaxConcurrency": 100,
+            "MaxConcurrency": 200,
             "Iterator": {
                 "StartAt": "SegmentLambda",
                 "States": {

@@ -44,9 +44,7 @@ bucket:
 	 	--profile=localstack
 
 stepfunctions:
-	aws s3 --endpoint-url=http://localhost:4566 \
-		cp utils/data/sample.json s3://aggregatebucket/data/ \
-	 	--profile=localstack
+	python utils/generate.py 1000
 
 	aws stepfunctions create-state-machine \
 		--name Aggregate \
