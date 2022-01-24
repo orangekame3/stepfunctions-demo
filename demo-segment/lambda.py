@@ -13,7 +13,9 @@ else:
         aws_secret_access_key="dummy",
     )
 
+aggregate_bucket = "aggregatebucket"
+
 
 def lambda_handler(event, context) -> dict:
-    handler = SegmentHandler(event, context, s3)
+    handler = SegmentHandler(event, context, s3, aggregate_bucket)
     return handler.main()

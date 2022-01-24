@@ -1,9 +1,9 @@
 import json
 import tempfile
 import logging
+import pickle
 import pandas as pd
 from pandas import json_normalize
-import pickle
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -12,12 +12,15 @@ mybucket = "aggregatebucket"
 
 
 class SegmentHandler(object):
-    def __init__(self, event, context, s3):
+    def __init__(self, event, context, s3, aggregate_bucket):
         self.event = event
         self.context = context
         self.s3 = s3
+        self.aggregate_bucket = aggregate_bucket
 
-    def main(self, bucket=mybucket) -> dict:
+    def main(
+        self,
+    ) -> dict:
         try:
 
             if self.event == {}:
@@ -25,10 +28,10 @@ class SegmentHandler(object):
             else:
                 recieve = self.event
             send = recieve.replace("scatter", "gather")
-            df = self.get_s3_data(bucket, recieve)
+            df = self.get_s3_data(self.aggregate_bucket, recieve)
             df = self.normalize(df)
             df = self.df_process(df)
-            return self.send_segment_df(df, bucket, send)
+            return self.send_segment_df(df, self.aggregate_bucket, send)
 
         except Exception as e:
             logger.exception(e)
@@ -83,7 +86,7 @@ class SegmentHandler(object):
         df = self.df_sort(df)
         return df
 
-    def normalize(self, df) -> pd.DataFrame:
+    def df_normalize(self, df) -> pd.DataFrame:
         return json_normalize(
             df.to_dict("records"),
             "トレーニング履歴",

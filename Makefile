@@ -1,4 +1,4 @@
-.PHONY: zip delete create update invoke log download stepfunction
+.PHONY: zip delete create update invoke log download stepfunction test
 zip:
 	cd demo-scatter && make -f Makefile zip --no-print-directory
 	cd demo-segment && make -f Makefile zip --no-print-directory
@@ -59,3 +59,6 @@ stepfunctions:
 	aws stepfunctions delete-state-machine \
 		--state-machine-arn "arn:aws:states:us-east-1:000000000000:stateMachine:Aggregate" \
 		--endpoint=http://localhost:4566
+
+test:
+	cd demo-scatter && make -f Makefile test --no-print-directory
