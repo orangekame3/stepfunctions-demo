@@ -31,21 +31,15 @@ log:
 
 download:
 	aws s3 --endpoint-url=http://localhost:4566 \
-	cp s3://aggregatebucket/ ./result --exclude "*" \
+	cp s3://test-bucket/ ./result --exclude "*" \
 	--include "*.xlsx" --recursive
 
 bucket:
-	aws --endpoint-url=http://localhost:4566 \
-		--profile localstack s3api create-bucket \
-		--bucket aggregatebucket
-
-	aws s3 --endpoint-url=http://localhost:4566 \
-		cp utils/data/sample.json s3://aggregatebucket/data/ \
-	 	--profile=localstack
+	aws s3 mb s3://test-bucket \
+	--endpoint-url=http://localhost:4566 \
+	--profile localstack
 
 stepfunctions:
-	python utils/generate.py 1000
-
 	aws stepfunctions create-state-machine \
 		--name Aggregate \
 		--definition file://state-machine/parallel.json \
@@ -62,3 +56,6 @@ stepfunctions:
 
 test:
 	cd demo-scatter && make -f Makefile test --no-print-directory
+
+json:
+	python utils/utils.py 100

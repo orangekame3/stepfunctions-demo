@@ -1,38 +1,69 @@
-.PHONY: zip delete create update invoke log
+.PHONY: clean zip  delete cretae update invoke log test bucket download json
 PROJECT_DIR=$(shell pwd)
-SITE_PACKAGES_DIR=$(shell pipenv --venv)/lib/python3.9/site-packages
-zip:
+DEPLOY_PACKAGES_DIR=deploy-packages
+
+clean:
+	rm -rf ./bin/*
+
+zip:clean
+	pipenv run mypy
+	pipenv run pytest
+	pipenv lock -r >requirements.txt
+	pipenv run pip install -r requirements.txt --target $(DEPLOY_PACKAGES_DIR)
 	@echo "Project Location: $(PROJECT_DIR)"
-	@echo "Library Location: $(SITE_PACKAGES_DIR)"
-	cd $(SITE_PACKAGES_DIR) && rm -rf __pycache__ && zip -r $(PROJECT_DIR)/bin/lambda.zip *
+	@echo "Library Location: $(DEPLOY_PACKAGES_DIR)"
+	cd $(DEPLOY_PACKAGES_DIR) && rm -rf __pycache__ && zip -r $(PROJECT_DIR)/bin/lambda.zip *
 	cd $(PROJECT_DIR) && zip -g ./bin/lambda.zip lambda.py segment.py
-	find ./bin/lambda.zip    
+	find ./bin/lambda.zip
+	cd $(DEPLOY_PACKAGES_DIR) && rm -r *
 
 delete:
 	aws --endpoint-url=http://localhost:4566 \
     --region us-east-1 --profile localstack lambda delete-function \
-    --function-name=segment
+    --function-name=segment-lambda
 	
 create:
 	aws lambda create-function \
-    --function-name=segment \
+    --function-name=segment-lambda \
     --runtime=python3.9 \
     --role=DummyRole \
     --handler=lambda.lambda_handler \
     --zip-file fileb://./bin/lambda.zip \
+	--region us-east-1 \
     --endpoint-url=http://localhost:4566
 
 
 update:
 	aws lambda update-function-code \
-    --function-name=segment \
+    --function-name=segment-lambda \
     --zip-file fileb://./bin/lambda.zip \
+	--region us-east-1 \
     --endpoint-url=http://localhost:4566
 
 invoke:
 	aws lambda --endpoint-url=http://localhost:4566 invoke \
-	--function-name segment \
+	--function-name segment-lambda \
+	--region us-east-1 \
+	--payload '{ "input_obj": "test.json" }' \
+	--cli-binary-format raw-in-base64-out \
 	--profile localstack  result.log
 
 log:
 	cat result.log
+
+test:
+	pipenv shell "pytest -vv && exit"
+
+
+bucket:
+	aws s3 mb s3://test-bucket \
+	--endpoint-url=http://localhost:4566 \
+	--profile localstack
+
+download:
+	aws s3 --endpoint-url=http://localhost:4566 \
+	cp s3://test-bucket/ ./result --exclude "*" \
+	--include "*.xlsx" --recursive
+
+json:
+	python utils/utils.py 100

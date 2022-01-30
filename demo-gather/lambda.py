@@ -9,13 +9,11 @@ else:
     s3 = boto3.client(
         service_name="s3",
         endpoint_url=endpoint,
-        aws_access_key_id="dummy",
-        aws_secret_access_key="dummy",
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
     )
 
-data_frames = []
 
-
-def lambda_handler(event, context) -> dict:
-    handler = GatherHandler(event, context, s3, data_frames)
+def lambda_handler(event, context) -> str:
+    handler = GatherHandler(event, context, s3)
     return handler.main()

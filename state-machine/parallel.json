@@ -3,7 +3,10 @@
     "States": {
         "ScatterLambda": {
             "Type": "Task",
-            "Resource": "arn:aws:lambda:us-east-1:123456789012:function:scatter",
+            "Resource": "arn:aws:lambda:us-east-1:000000000000:function:scatter-lambda",
+            "Parameters": {
+                "input_obj": "test.json"
+            },
             "Next": "ProcessAllSegments"
         },
         "ProcessAllSegments": {
@@ -16,7 +19,7 @@
                 "States": {
                     "SegmentLambda": {
                         "Type": "Task",
-                        "Resource": "arn:aws:lambda:us-east-1:123456789012:function:segment",
+                        "Resource": "arn:aws:lambda:us-east-1:000000000000:function:segment-lambda",
                         "End": true
                     }
                 }
@@ -27,7 +30,7 @@
         "GatherLambda": {
             "Type": "Task",
             "InputPath": "$",
-            "Resource": "arn:aws:lambda:us-east-1:123456789012:function:gather",
+            "Resource": "arn:aws:lambda:us-east-1:000000000000:function:gather-lambda",
             "End": true
         }
     }

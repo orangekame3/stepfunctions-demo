@@ -4,13 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-boto3 = "*"
 pandas = "*"
-joblib = "*"
 xlwt = "*"
 xlsxwriter = "*"
 
 [dev-packages]
+pytest = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.9"
+
+[scripts]
+mypy = "mypy gather.py lambda.py"
+pytest = "pytest -vv"

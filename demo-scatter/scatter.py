@@ -2,7 +2,7 @@ import json
 import tempfile
 import logging
 import pandas as pd
-
+from typing import List, Dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -14,55 +14,51 @@ class ScatterHandler(object):
         event,
         context,
         s3,
-        segments,
-        aggregate_bucket,
-        recieve,
-        division_number,
-        date_dir,
     ):
         self.event = event
         self.context = context
         self.s3 = s3
-        self.segments = segments
-        self.aggregate_bucket = aggregate_bucket
-        self.recieve = recieve
-        self.division_number = division_number
-        self.date_dir = date_dir
 
     def main(self) -> dict:
         try:
-            data = self.get_s3_data()
+            bucket = "test-bucket"
+            data_path = self.event["input_obj"]
+            division_number = 10
+            segments: Dict = {}
+            segments["segment_definitions"] = []
+            data = self.get_s3_data(bucket, data_path)
             df = self.make_df(data)
             dfs = [
-                df.loc[i : i + self.division_number - 1, :]
-                for i in range(0, len(df), self.division_number)
+                df.loc[i : i + division_number - 1, :]
+                for i in range(0, len(df), division_number)
             ]
-            segments = self.make_segment_df(dfs)
+            segments = self.make_segment_df(segments, bucket, dfs)
             return segments
 
         except Exception as e:
             logger.exception(e)
             raise e
 
-    def get_s3_data(self) -> str:
-        resp = self.s3.get_object(Bucket=self.aggregate_bucket, Key=self.recieve)
+    def get_s3_data(self, bucket: str, key: str) -> List[dict]:
+        resp = self.s3.get_object(Bucket=bucket, Key=key)
         body = resp["Body"].read().decode("utf-8")
-        json_dict = json.loads(body)
+        json_dict: List[dict] = json.loads(body)
         return json_dict
 
-    def make_df(self, data: str) -> pd.DataFrame:
-        return pd.DataFrame.from_dict(data)
+    def make_df(self, data: list) -> pd.DataFrame:
+        df = pd.DataFrame.from_dict(data)
+        return df
 
-    def make_segment_df(self, dfs: list) -> dict:
+    def make_segment_df(self, segments: dict, bucket: str, dfs: list) -> dict:
         for i, df_i in enumerate(dfs):
             with tempfile.TemporaryFile() as fp:
                 df_i.to_pickle(fp)
                 fp.seek(0)
-                fsend = "scatter/" + self.date_dir + "/job_" + str(i).zfill(3) + ".pkl"
+                fsend = "scatter/job_" + str(i).zfill(3) + ".pkl"
                 self.s3.put_object(
                     Body=fp.read(),
-                    Bucket=self.aggregate_bucket,
+                    Bucket=bucket,
                     Key=fsend,
                 )
-                self.segments["segment_definitions"].append(fsend)
-        return self.segments
+                segments["segment_definitions"].append(fsend)
+        return segments

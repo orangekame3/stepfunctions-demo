@@ -1,37 +1,29 @@
-import json
 import tempfile
 import logging
 import pandas as pd
 import pickle
+from typing import List
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-mybucket = "aggregatebucket"
-init_segments = {}
-init_segments["segment_results"] = ["gather/job_000.pkl"]
-
 
 class GatherHandler(object):
-    def __init__(self, event, context, s3, data_frames):
+    def __init__(self, event, context, s3):
         self.event = event
         self.context = context
         self.s3 = s3
-        self.data_frames = data_frames
 
-    def main(self, bucket=mybucket) -> dict:
+    def main(self) -> str:
         try:
-
-            if self.event == {}:
-                segments = init_segments["segment_results"]
-            else:
-                segments = self.event["segment_results"]
-
-            send = "summary.xlsx"
+            bucket = "test-bucket"
+            segments = self.event["segment_results"]
+            send = "test.xlsx"
+            data_frames: List[pd.DataFrame] = []
             for pkl in segments:
                 df = self.get_s3_df(bucket, pkl)
-                self.data_frames.append(df)
-            df_gather = pd.concat(self.data_frames)
+                data_frames.append(df)
+            df_gather = pd.concat(data_frames)
             return self.send_excel(df_gather, bucket, send)
 
         except Exception as e:
@@ -48,7 +40,6 @@ class GatherHandler(object):
         with tempfile.TemporaryFile() as fp:
             writer = pd.ExcelWriter(fp, engine="xlsxwriter")
             df.to_excel(writer, sheet_name="Sheet1", index=False)
-            worksheet = writer.sheets["Sheet1"]
             writer.save()
             fp.seek(0)
             self.s3.put_object(

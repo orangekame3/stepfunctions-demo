@@ -8,6 +8,7 @@ services:
       - DATA_DIR=/tmp/localstack/data
       - SERVICES=lambda,s3,stepfunctions
       - LAMBDA_EXECUTOR=docker-reuse
+      - DEFAULT_REGION=us-east-1
     ports:
       - "4566:4566"
     volumes:
@@ -17,8 +18,9 @@ services:
   stepfunctions:
     container_name: stepfunctions
     image: amazon/aws-stepfunctions-local:latest
+    env_file: stepfunctions-credentials.env
     environment:
       - LAMBDA_ENDPOINT=http://localstack:4566
-      - STEPFUNCTIONS_LAMBDA_ENDPOINT=http://host.docker.internal:4566 ##追記
+      - STEPFUNCTIONS_LAMBDA_ENDPOINT=http://host.docker.internal:4566
     ports:
       - '8083:8083'
