@@ -58,4 +58,4 @@ test:
 	cd demo-scatter && make -f Makefile test --no-print-directory
 
 json:
-	python utils/utils.py 100
+	python utils/utils.py 1000

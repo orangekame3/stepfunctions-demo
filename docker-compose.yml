@@ -9,6 +9,7 @@ services:
       - SERVICES=lambda,s3,stepfunctions
       - LAMBDA_EXECUTOR=docker-reuse
       - DEFAULT_REGION=us-east-1
+      - DEBUG=1
     ports:
       - "4566:4566"
     volumes:

@@ -23,7 +23,7 @@ class ScatterHandler(object):
         try:
             bucket = "test-bucket"
             data_path = self.event["input_obj"]
-            division_number = 10
+            division_number = 50
             segments: Dict = {}
             segments["segment_definitions"] = []
             data = self.get_s3_data(bucket, data_path)
